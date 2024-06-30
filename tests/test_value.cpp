@@ -21,6 +21,14 @@ TEST(ValueTest, NegateValue) {
 	ASSERT_EQ(b.data, -5.0);
 }
 
+TEST(ValueTest, Sub2Values) {
+        Value a{6.0};
+        Value b{3.5};
+        Value c = a - b;
+
+        ASSERT_EQ(c.data, 2.5);
+}
+
 TEST(ValueTest, Mult2Values) {
 	Value a{4.0};
 	Value b{7.0};
@@ -40,7 +48,7 @@ TEST(ValueTest, Add2ValuesGrad) {
 	ASSERT_EQ(b.grad, 2.0);
 }
 
-TEST(ValueTest, NegativeValueGrad) {
+TEST(ValueTest, NegateValueGrad) {
 	Value a{5.0};
 	Value b = -a;
 	
@@ -48,6 +56,19 @@ TEST(ValueTest, NegativeValueGrad) {
 	b.backward();
 
 	ASSERT_EQ(a.grad, -2.0);
+}
+
+TEST(ValueTest, Sub2ValuesGrad) {
+        Value a{6.0};
+        Value b{3.5};
+
+        Value c = a - b;
+
+        c.grad = 2.0;
+	c.backward();
+        
+	ASSERT_EQ(a.grad, 2.0);
+        ASSERT_EQ(b.grad, -2.0);
 }
 
 TEST(ValueTest, Mult2ValuesGrad) {
