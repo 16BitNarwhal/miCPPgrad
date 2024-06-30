@@ -17,6 +17,14 @@ Value Value::operator+(Value& other) {
 	return out;
 }
 
+Value Value::operator-() {
+	Value out{-this->data, {this}, "-"};
+	out.backward = [&out, this]() {
+		this->grad += -1.0 * out.grad;
+	};
+	return out;
+}
+
 Value Value::operator*(Value& other) {
         Value out{this->data * other.data, {this, &other}, "*"};
         out.backward = [&out, this, &other]() {
