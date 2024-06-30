@@ -1,13 +1,31 @@
 #!/bin/sh
 
-mkdir -p build
-cd build
-cmake ..
-make
+skip_build=false
+run_tests=false
 
-if [ "$1" = "test" ]
-then
-	./micppgrad_test
-else
-	./micppgrad
+# Check arguments
+for arg in "$@"; do
+    if [ "$arg" = "test" ]; then
+        run_tests=true
+    fi
+    if [ "$arg" = "skipbuild" ]; then
+        skip_build=true
+    fi
+done
+
+# Build if skip_build is not true
+if [ "$skip_build" != true ]; then
+    mkdir -p build
+    cd build
+    cmake ..
+    make
+    cd ..
 fi
+
+# Run appropriate binary based on arguments
+if [ "$run_tests" = true ]; then
+    ./build/micppgrad_test
+else
+    ./build/micppgrad
+fi
+
