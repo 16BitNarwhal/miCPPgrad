@@ -27,6 +27,7 @@ enable_testing()
 add_executable(
   micppgrad_test
   tests/test_value.cpp
+  src/value.cpp
 )
 
 target_link_libraries(
