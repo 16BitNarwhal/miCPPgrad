@@ -20,6 +20,7 @@ public:
 	Value operator-();
 	Value operator-(Value& other);
 	Value operator*(Value& other);
+	Value pow(Value& other);
 };
 
 #endif

@@ -1,5 +1,6 @@
 #include <gtest/gtest.h>
 #include "value.h"
+#include <cmath>
 
 #include <iostream>
 
@@ -34,6 +35,13 @@ TEST(ValueTest, Mult2Values) {
 	Value b{7.0};
 	Value c = a * b;
 	ASSERT_EQ(c.data, 28.0);
+}
+
+TEST(ValueTest, PowValue) {
+	Value a{2.0};
+	Value b{3.0};
+	Value c = a.pow(b);
+	ASSERT_EQ(c.data, 8.0);
 }
 
 TEST(ValueTest, Add2ValuesGrad) {
@@ -80,4 +88,16 @@ TEST(ValueTest, Mult2ValuesGrad) {
 	c.backward();
 	ASSERT_EQ(a.grad, 14.0);
 	ASSERT_EQ(b.grad, 8.0);
+}
+
+TEST(ValueTest, Pow2ValuesGrad) {
+	Value a{exp(1)};
+	Value b{3.0};
+	Value c = a.pow(b);
+	
+	c.grad = 2.0;
+	c.backward();
+
+	ASSERT_NEAR(a.grad, 2*3*exp(2), 1e-6);
+	ASSERT_NEAR(b.grad, 2*exp(3), 1e-6);
 }

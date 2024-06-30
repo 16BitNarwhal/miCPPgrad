@@ -42,3 +42,12 @@ Value Value::operator*(Value& other) {
         };
         return out;
 }
+
+Value Value::pow(Value& other) {
+	Value out{std::pow(this->data, other.data), {this, &other}, "^"};
+	out.backward = [&out, this, &other]() {
+		this->grad += other.data * std::pow(this->data, other.data-1) * out.grad;
+		other.grad += log(this->data) * out.data * out.grad;
+	};
+	return out;
+}
