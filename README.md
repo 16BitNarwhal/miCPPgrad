@@ -11,3 +11,8 @@ Run testcases
 ```shell
 ./run.sh test
 ```
+
+Skip the build by adding `skipbuild` as an arg
+```shell
+./run.sh skipbuild
+```
