@@ -16,10 +16,11 @@ done
 # Build if skip_build is not true
 if [ "$skip_build" != true ]; then
     mkdir -p build
-    cd build
-    cmake ..
-    make
-    cd ..
+    cd build || exit 1  
+    if ! (cmake .. && make); then
+        exit 1
+    fi
+    cd .. 
 fi
 
 # Run appropriate binary based on arguments
