@@ -37,6 +37,13 @@ TEST(ValueTest, Mult2Values) {
 	ASSERT_EQ(c.data, 28.0);
 }
 
+TEST(ValueTest, Div2Values) {
+	Value a{12.0};
+	Value b{3.0};
+	Value c = a / b;
+	ASSERT_EQ(c.data, 4.0);
+}
+
 TEST(ValueTest, PowValue) {
 	Value a{2.0};
 	Value b{3.0};
@@ -88,6 +95,17 @@ TEST(ValueTest, Mult2ValuesGrad) {
 	c.backward();
 	ASSERT_EQ(a.grad, 14.0);
 	ASSERT_EQ(b.grad, 8.0);
+}
+
+TEST(ValueTest, Div2ValuesGrad) {
+	Value a{12.0};
+	Value b{3.0};
+	Value c = a / b;
+	
+	c.grad = 2.0;
+	c.backward();
+	ASSERT_NEAR(a.grad, 2.0/3.0, 1e-6);
+	ASSERT_NEAR(b.grad, -8.0/3.0, 1e-6);
 }
 
 TEST(ValueTest, Pow2ValuesGrad) {
