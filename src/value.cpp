@@ -1,62 +1,69 @@
 #include "value.h"
-#include <vector>
-#include <string>
-#include <unordered_set>
 
 #include <iostream>
 
-Value::Value(double data, const std::unordered_set<Value*>& prev, const std::string& op)
+Value::Value(double data, const std::unordered_set<std::shared_ptr<Value>>& prev, const std::string& op)
     : data(data), grad(0.0), prev(prev), op(op) {}
 
-Value Value::operator+(Value& other) {
-    Value out{this->data + other.data, {this, &other}, "+"};
-    out.backward = [&out, this, &other]() {
-        this->grad += out.grad;
-        other.grad += out.grad;
+std::shared_ptr<Value> Value::operator+(const std::shared_ptr<Value>& other) {
+    std::shared_ptr<Value> out = std::make_shared<Value>(Value(this->data + other->data, {shared_from_this(), other}, "+"));
+    out->backward = [out, this, other]() {
+        this->grad += out->grad;
+        other->grad += out->grad;
     };
     return out;
 }
 
-Value Value::operator-() {
-    Value out{-this->data, {this}, "-"};
-    out.backward = [&out, this]() {
-        this->grad -= out.grad;
-    };
-    return out;;
+std::shared_ptr<Value> Value::operator-() {
+    return *this * std::make_shared<Value>(-1.0);
 }
 
-Value Value::operator-(Value& other) {
-    Value out{this->data - other.data, {this, &other}, "-"};
-    out.backward = [&out, this, &other]() {
-        this->grad += out.grad;
-        other.grad -= out.grad;
+std::shared_ptr<Value> Value::operator-(const std::shared_ptr<Value>& other) {
+    return *this + (-other);
+}
+
+std::shared_ptr<Value> Value::operator*(const std::shared_ptr<Value>& other) {
+    std::shared_ptr<Value> out = std::make_shared<Value>(Value(this->data * other->data, {shared_from_this(), other}, "*"));
+    out->backward = [out, this, other]() {
+        this->grad += other->data * out->grad;
+        other->grad += this->data * out->grad;
     };
     return out;
 }
 
-Value Value::operator*(Value& other) {
-    Value out{this->data * other.data, {this, &other}, "*"};
-    out.backward = [&out, this, &other]() {
-        this->grad += other.data * out.grad;
-        other.grad += this->data * out.grad;
+std::shared_ptr<Value> Value::operator/(const std::shared_ptr<Value>& other) {
+    return *this * other->pow(std::make_shared<Value>(-1.0));
+}
+
+std::shared_ptr<Value> Value::pow(const std::shared_ptr<Value>& other) {
+    std::shared_ptr<Value> out = std::make_shared<Value>(Value(std::pow(this->data, other->data), {shared_from_this(), other}, "^"));
+    out->backward = [out, this, other]() {
+        this->grad += other->data * std::pow(this->data, other->data-1) * out->grad;
+        other->grad += std::log(this->data) * out->data * out->grad;
     };
     return out;
 }
 
-Value Value::operator/(Value& other) {
-    Value out{this->data * std::pow(other.data, -1), {this, &other}, "/"};
-    out.backward = [&out, this, &other]() {
-        this->grad += std::pow(other.data, -1) * out.grad;
-        other.grad += -this->data * std::pow(other.data, -2) * out.grad;
-    };
-    return out;
+std::shared_ptr<Value> operator+(const std::shared_ptr<Value>& a, const std::shared_ptr<Value>& b) {
+    return (*a) + b;
 }
 
-Value Value::pow(Value& other) {
-    Value out{std::pow(this->data, other.data), {this, &other}, "^"};
-    out.backward = [&out, this, &other]() {
-        this->grad += other.data * std::pow(this->data, other.data-1) * out.grad;
-        other.grad += std::log(this->data) * out.data * out.grad;
-    };
-    return out;
+std::shared_ptr<Value> operator-(const std::shared_ptr<Value>& a) {
+    return -(*a);
+}
+
+std::shared_ptr<Value> operator-(const std::shared_ptr<Value>& a, const std::shared_ptr<Value>& b) {
+    return (*a) - b;
+}
+
+std::shared_ptr<Value> operator*(const std::shared_ptr<Value>& a, const std::shared_ptr<Value>& b) {
+    return (*a) * b;
+}
+
+std::shared_ptr<Value> operator/(const std::shared_ptr<Value>& a, const std::shared_ptr<Value>& b) {
+    return (*a) / b;
+}
+
+std::shared_ptr<Value> pow(const std::shared_ptr<Value>& a, const std::shared_ptr<Value>& b) {
+    return (*a).pow(b);
 }

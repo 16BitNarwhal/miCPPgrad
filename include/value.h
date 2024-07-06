@@ -5,23 +5,31 @@
 #include <string>
 #include <functional>
 #include <cmath>
+#include <memory>
 
-class Value {
+class Value : public std::enable_shared_from_this<Value> {
 public:
 	double data;
 	double grad;
-	std::unordered_set<Value*> prev;
+	std::unordered_set<std::shared_ptr<Value>> prev;
 	std::function<void()> backward;
 	std::string op;
 
-	Value(double data, const std::unordered_set<Value*>& prev = {}, const std::string& op = "");
+	Value(double data, const std::unordered_set<std::shared_ptr<Value>>& prev = {}, const std::string& op = "");
 
-	Value operator+(Value& other);
-	Value operator-();
-	Value operator-(Value& other);
-	Value operator*(Value& other);
-	Value operator/(Value& other);
-	Value pow(Value& other);
+	std::shared_ptr<Value> operator+(const std::shared_ptr<Value>& other);
+	std::shared_ptr<Value> operator-();
+	std::shared_ptr<Value> operator-(const std::shared_ptr<Value>& other);
+	std::shared_ptr<Value> operator*(const std::shared_ptr<Value>& other);
+	std::shared_ptr<Value> operator/(const std::shared_ptr<Value>& other);
+	std::shared_ptr<Value> pow(const std::shared_ptr<Value>& other);
 };
+
+std::shared_ptr<Value> operator+(const std::shared_ptr<Value>& a, const std::shared_ptr<Value>& b);
+std::shared_ptr<Value> operator-(const std::shared_ptr<Value>& a);
+std::shared_ptr<Value> operator-(const std::shared_ptr<Value>& a, const std::shared_ptr<Value>& b);
+std::shared_ptr<Value> operator*(const std::shared_ptr<Value>& a, const std::shared_ptr<Value>& b);
+std::shared_ptr<Value> operator/(const std::shared_ptr<Value>& a, const std::shared_ptr<Value>& b);
+std::shared_ptr<Value> pow(const std::shared_ptr<Value>& a, const std::shared_ptr<Value>& b);
 
 #endif
