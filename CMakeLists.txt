@@ -10,8 +10,8 @@ include_directories(include)
 
 # Main executable
 add_executable(micppgrad
-        src/main.cpp
-        src/value.cpp
+  src/main.cpp
+  src/value.cpp
 )
 
 include(FetchContent)
