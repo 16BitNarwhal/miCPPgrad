@@ -59,21 +59,19 @@ TEST(ValueTest, Add2ValuesGrad) {
     shared_ptr<Value> b = make_shared<Value>(3.0);
     shared_ptr<Value> c = a + b;
 	
-    c->grad = 2.0;
-    c->backward();
+    c->backprop();
 
-    ASSERT_EQ(a->grad, 2.0);
-    ASSERT_EQ(b->grad, 2.0);
+    ASSERT_EQ(a->grad, 1.0);
+    ASSERT_EQ(b->grad, 1.0);
 }
 
 TEST(ValueTest, NegateValueGrad) {
     shared_ptr<Value> a = make_shared<Value>(5.0);
     shared_ptr<Value> b = -a;
 	
-    b->grad = 2.0;
-    b->backward();
+    b->backprop();
 
-    ASSERT_EQ(a->grad, -2.0);
+    ASSERT_EQ(a->grad, -1.0);
 }
 
 TEST(ValueTest, Sub2ValuesGrad) {
@@ -82,11 +80,10 @@ TEST(ValueTest, Sub2ValuesGrad) {
 
     shared_ptr<Value> c = a - b;
 
-    c->grad = 2.0;
-    c->backward();
+    c->backprop();
         
-    ASSERT_EQ(a->grad, 2.0);
-    ASSERT_EQ(b->grad, -2.0);
+    ASSERT_EQ(a->grad, 1.0);
+    ASSERT_EQ(b->grad, -1.0);
 }
 
 TEST(ValueTest, Mult2ValuesGrad) {
@@ -94,10 +91,9 @@ TEST(ValueTest, Mult2ValuesGrad) {
     shared_ptr<Value> b = make_shared<Value>(7.0);
     shared_ptr<Value> c = a * b;
 
-    c->grad = 2.0;
-    c->backward();
-    ASSERT_EQ(a->grad, 14.0);
-    ASSERT_EQ(b->grad, 8.0);
+    c->backprop();
+    ASSERT_EQ(a->grad, 7.0);
+    ASSERT_EQ(b->grad, 4.0);
 }
 
 TEST(ValueTest, Div2ValuesGrad) {
@@ -105,10 +101,9 @@ TEST(ValueTest, Div2ValuesGrad) {
     shared_ptr<Value> b = make_shared<Value>(3.0);
     shared_ptr<Value> c = a / b;
 	
-    c->grad = 2.0;
-    c->backward();
-    ASSERT_NEAR(a->grad, 2.0/3.0, 1e-6);
-    ASSERT_NEAR(b->grad, -8.0/3.0, 1e-6);
+    c->backprop();
+    ASSERT_NEAR(a->grad, 1.0/3.0, 1e-6);
+    ASSERT_NEAR(b->grad, -4.0/3.0, 1e-6);
 }
 
 TEST(ValueTest, Pow2ValuesGrad) {
@@ -116,18 +111,20 @@ TEST(ValueTest, Pow2ValuesGrad) {
     shared_ptr<Value> b = make_shared<Value>(3.0);
     shared_ptr<Value> c = pow(a, b);
 	
-    c->grad = 2.0;
-    c->backward();
+    c->backprop();
 
-    ASSERT_NEAR(a->grad, 2*3*exp(2), 1e-6);
-    ASSERT_NEAR(b->grad, 2*exp(3), 1e-6);
+    ASSERT_NEAR(a->grad, 3*exp(2), 1e-6);
+    ASSERT_NEAR(b->grad, exp(3), 1e-6);
 }
 
 TEST(ValueTest, ManualTanh) {
     shared_ptr<Value> x = make_shared<Value>(log(2));
-    shared_ptr<Value> e = make_shared<Value>(exp(1));
-    shared_ptr<Value> ex = pow(e, make_shared<Value>(2.0) * x);
-    shared_ptr<Value> result = (ex - make_shared<Value>(1.0)) / (ex + make_shared<Value>(1.0));
+    shared_ptr<Value> ex = pow(make_shared<Value>(exp(1)), make_shared<Value>(2) * x);
+    shared_ptr<Value> result = (ex - make_shared<Value>(1)) / (ex + make_shared<Value>(1));
 
     ASSERT_NEAR(result->data, 3.0/5.0, 1e-6);
+
+    result->backprop();
+
+    ASSERT_NEAR(x->grad, 0.64, 1e-6);
 }

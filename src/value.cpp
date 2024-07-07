@@ -5,6 +5,29 @@
 Value::Value(double data, const std::unordered_set<std::shared_ptr<Value>>& prev, const std::string& op)
     : data(data), grad(0.0), prev(prev), op(op) {}
 
+void Value::backprop() {
+    std::vector<std::shared_ptr<Value>> topo;
+    std::unordered_set<std::shared_ptr<Value>> visited;
+
+    std::function<void(const std::shared_ptr<Value>&)> build_topo = [&](const std::shared_ptr<Value>& v) {
+        if (visited.find(v) != visited.end()) return;
+        visited.insert(v);
+        for (const std::shared_ptr<Value>& prev : v->prev) {
+            build_topo(prev);
+        }
+        topo.push_back(v);
+    };
+
+    build_topo(shared_from_this());
+
+    grad = 1.0;
+
+    for (auto it = topo.rbegin(); it != topo.rend(); ++it) {
+        if ((*it)->backward != nullptr)
+            (*it)->backward();
+    }
+}
+
 std::shared_ptr<Value> Value::operator+(const std::shared_ptr<Value>& other) {
     std::shared_ptr<Value> out = std::make_shared<Value>(Value(this->data + other->data, {shared_from_this(), other}, "+"));
     std::weak_ptr<Value> weak_out = out;

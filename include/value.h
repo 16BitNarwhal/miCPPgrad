@@ -17,6 +17,8 @@ public:
 
 	Value(double data, const std::unordered_set<std::shared_ptr<Value>>& prev = {}, const std::string& op = "");
 
+	void backprop();
+
 	std::shared_ptr<Value> operator+(const std::shared_ptr<Value>& other);
 	std::shared_ptr<Value> operator-();
 	std::shared_ptr<Value> operator-(const std::shared_ptr<Value>& other);
