@@ -128,3 +128,25 @@ TEST(ValueTest, ManualTanh) {
 
     ASSERT_NEAR(x->grad, 0.64, 1e-6);
 }
+
+TEST(ValueTest, ReluZero) {
+    shared_ptr<Value> x = make_shared<Value>(-21.0);
+    shared_ptr<Value> result = x->relu();
+
+    ASSERT_EQ(result->data, 0.0);
+
+    result->backprop();
+
+    ASSERT_EQ(x->grad, 0.0);
+}
+
+TEST(ValueTest, ReluNonZero) {
+    shared_ptr<Value> x = make_shared<Value>(14.0);
+    shared_ptr<Value> result = x->relu();
+
+    ASSERT_EQ(result->data, 14.0);
+
+    result->backprop();
+
+    ASSERT_EQ(x->grad, 1.0);
+}

@@ -76,6 +76,17 @@ std::shared_ptr<Value> Value::pow(const std::shared_ptr<Value>& other) {
     return out;
 }
 
+std::shared_ptr<Value> Value::relu() {
+    std::shared_ptr<Value> out = std::make_shared<Value>(Value(std::max(0.0, this->data), {shared_from_this()}, "relu"));
+    std::weak_ptr<Value> weak_out = out;
+    out->backward = [weak_out, this]() {
+        if (std::shared_ptr<Value> out = weak_out.lock()) {
+            this->grad += (out->data > 0) * out->grad;
+        }
+    };
+    return out;
+}
+
 std::shared_ptr<Value> operator+(const std::shared_ptr<Value>& a, const std::shared_ptr<Value>& b) {
     return (*a) + b;
 }

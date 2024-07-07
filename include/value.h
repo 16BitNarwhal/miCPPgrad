@@ -25,6 +25,7 @@ public:
 	std::shared_ptr<Value> operator*(const std::shared_ptr<Value>& other);
 	std::shared_ptr<Value> operator/(const std::shared_ptr<Value>& other);
 	std::shared_ptr<Value> pow(const std::shared_ptr<Value>& other);
+	std::shared_ptr<Value> relu();
 };
 
 std::shared_ptr<Value> operator+(const std::shared_ptr<Value>& a, const std::shared_ptr<Value>& b);
