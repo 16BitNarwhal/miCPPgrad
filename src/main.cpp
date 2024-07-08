@@ -27,7 +27,8 @@ int main() {
 
     // train loop
     double lr = 0.03;
-    for (int i = 0; i < 100; i++) {
+    int epochs = 5000;
+    for (int i = 1; i <= epochs; i++) {
         // gradient descent
         model.zero_grad();
         vector<shared_ptr<Value>> ypred;
@@ -42,11 +43,13 @@ int main() {
         for (auto& p : model.get_parameters()) {
             p->data -= p->grad * lr;
         }
-        cout<< "loss: " << loss->data << endl;
+        if (i % (epochs / 10) == 0) {
+            std::cout << "loss on epoch " << i << ": " << loss->data << endl;
+        }
     }
 
     // evaluate
     vector<shared_ptr<Value>> xval = {make_shared<Value>(2.0), make_shared<Value>(2.0)};
     shared_ptr<Value> ypred = model(xval)[0];
-    cout << "ypred: " << ypred->data << endl;
+    std::cout << "ypred: " << ypred->data << endl;
 }

@@ -77,6 +77,13 @@ std::shared_ptr<Value> Value::pow(const std::shared_ptr<Value>& other) {
     return out;
 }
 
+std::shared_ptr<Value> Value::tanh() {
+    std::shared_ptr<Value> x = std::make_shared<Value>(log(2));
+    std::shared_ptr<Value> ex = std::make_shared<Value>(exp(1))->pow(std::make_shared<Value>(2) * x);
+    std::shared_ptr<Value> out = (ex - std::make_shared<Value>(1)) / (ex + std::make_shared<Value>(1));
+    return out;
+}
+
 std::shared_ptr<Value> Value::relu() {
     std::shared_ptr<Value> out = std::make_shared<Value>(Value(std::max(0.0, this->data), {shared_from_this()}, "relu"));
     std::weak_ptr<Value> weak_out = out;

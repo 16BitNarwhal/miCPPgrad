@@ -23,6 +23,7 @@ std::shared_ptr<Value> Neuron::operator()(const std::vector<std::shared_ptr<Valu
         out = out + (inputs[i] * this->weights[i]);
     }
     out = out + this->bias;
+    out = out->relu();
     this->output = out;
     return out;
 }
