@@ -12,6 +12,7 @@ include_directories(include)
 add_executable(micppgrad
   src/main.cpp
   src/value.cpp
+  src/neural_network.cpp
 )
 
 include(FetchContent)

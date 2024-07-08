@@ -23,8 +23,9 @@ void Value::backprop() {
     grad = 1.0;
 
     for (auto it = topo.rbegin(); it != topo.rend(); ++it) {
-        if ((*it)->backward != nullptr)
+        if ((*it)->backward != nullptr) {
             (*it)->backward();
+        }
     }
 }
 

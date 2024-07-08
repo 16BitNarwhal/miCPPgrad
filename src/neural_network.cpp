@@ -20,9 +20,10 @@ Neuron::Neuron(const int n_inputs) {
 std::shared_ptr<Value> Neuron::operator()(const std::vector<std::shared_ptr<Value>>& inputs) {
     std::shared_ptr<Value> out = std::make_shared<Value>(Value(0.0));
     for (int i = 0; i < inputs.size(); i++) {
-        out->data += inputs[i]->data * this->weights[i]->data;
+        out = out + (inputs[i] * this->weights[i]);
     }
-    out->data += this->bias->data;
+    out = out + this->bias;
+    this->output = out;
     return out;
 }
 
@@ -32,6 +33,16 @@ std::vector<std::shared_ptr<Value>> Neuron::get_parameters() {
         parameters.push_back(w);
     }
     return parameters;
+}
+
+std::ostream& operator<<(std::ostream& os, const Neuron& n) {
+    os << "bias: " << n.bias->data << std::endl;
+    for (const std::shared_ptr<Value>& w : n.weights) {
+        os << "weight: " << w->data << std::endl;
+    }
+    os << "output: " << n.output->data << std::endl;
+    os << "grad: " << n.output->grad << std::endl;
+    return os;
 }
 
 Layer::Layer(const int n_inputs, const int n_neurons) {
@@ -51,9 +62,18 @@ std::vector<std::shared_ptr<Value>> Layer::operator()(const std::vector<std::sha
 std::vector<std::shared_ptr<Value>> Layer::get_parameters() {
     std::vector<std::shared_ptr<Value>> parameters;
     for (auto& n : this->neurons) {
-        parameters.insert(parameters.end(), n.get_parameters().begin(), n.get_parameters().end());
+        std::vector<std::shared_ptr<Value>> n_params = n.get_parameters();
+        parameters.insert(parameters.end(), n_params.begin(), n_params.end());
     }
     return parameters;
+}
+
+std::ostream& operator<<(std::ostream& os, const Layer& l) {
+    os << "=== layer ===" << std::endl;
+    for (const Neuron& n : l.neurons) {
+        os << n << std::endl;
+    }
+    return os;
 }
 
 MultiLayerPerceptron::MultiLayerPerceptron(const std::vector<int>& layer_sizes) {
@@ -73,7 +93,16 @@ std::vector<std::shared_ptr<Value>> MultiLayerPerceptron::operator()(const std::
 std::vector<std::shared_ptr<Value>> MultiLayerPerceptron::get_parameters() {
     std::vector<std::shared_ptr<Value>> parameters;
     for (auto& l : this->layers) {
-        parameters.insert(parameters.end(), l.get_parameters().begin(), l.get_parameters().end());
+        std::vector<std::shared_ptr<Value>> l_params = l.get_parameters();
+        parameters.insert(parameters.end(), l_params.begin(), l_params.end());
     }
     return parameters;
+}
+
+std::ostream& operator<<(std::ostream& os, const MultiLayerPerceptron& mlp) {
+    os << "===== MLP =====" << std::endl << std::endl;
+    for (const Layer& l : mlp.layers) {
+        os << l << std::endl;
+    }
+    return os;
 }

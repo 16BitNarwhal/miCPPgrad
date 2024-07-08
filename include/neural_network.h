@@ -4,6 +4,7 @@
 #include "value.h"
 #include <vector>
 #include <random>
+#include <iostream>
 
 class Module {
 public:
@@ -16,11 +17,14 @@ class Neuron : public Module {
 public:
     std::vector<std::shared_ptr<Value>> weights;
     std::shared_ptr<Value> bias;
+    std::shared_ptr<Value> output;
 
     Neuron(const int n_inputs);
 
     std::shared_ptr<Value> operator()(const std::vector<std::shared_ptr<Value>>& inputs);
     std::vector<std::shared_ptr<Value>> get_parameters() override;
+
+    friend std::ostream& operator<<(std::ostream& os, const Neuron& n);
 };
 
 class Layer : public Module {
@@ -31,6 +35,8 @@ public:
 
     std::vector<std::shared_ptr<Value>> operator()(const std::vector<std::shared_ptr<Value>>& inputs);
     std::vector<std::shared_ptr<Value>> get_parameters() override;
+
+    friend std::ostream& operator<<(std::ostream& os, const Layer& l);
 };
 
 class MultiLayerPerceptron : public Module {
@@ -41,6 +47,8 @@ public:
 
     std::vector<std::shared_ptr<Value>> operator()(const std::vector<std::shared_ptr<Value>>& inputs);
     std::vector<std::shared_ptr<Value>> get_parameters() override;
+
+    friend std::ostream& operator<<(std::ostream& os, const MultiLayerPerceptron& mlp);
 };
 
 #endif
