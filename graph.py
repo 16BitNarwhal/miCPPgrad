@@ -43,7 +43,7 @@ def update_plot(frame):
     ax1.set_xlabel('X')
     ax1.set_ylabel('Y')
     ax1.set_zlabel('Z')
-    ax1.set_zlim(0, 2)
+    ax1.set_zlim(-2, 2)
     ax1.set_title(f'Prediction (Epoch {epoch}, Loss: {epoch_data["Loss"].iloc[0]:.4f})')
 
     ax2.clear()
@@ -51,7 +51,7 @@ def update_plot(frame):
     ax2.set_xlabel('X')
     ax2.set_ylabel('Y')
     ax2.set_zlabel('Z')
-    ax2.set_zlim(0, 2)
+    ax2.set_zlim(-2, 2)
     ax2.set_title('Ground Truth')
     
     return surf_pred, surf_true

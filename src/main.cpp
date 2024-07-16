@@ -7,7 +7,7 @@
 using namespace std;
 
 const int EPOCHS = 10000;
-const int NUM_SAVES = 100;
+const int NUM_SAVES = 50;
 const double LEARNING_RATE = 0.03;
 const vector<pair<int, Activation>> LAYERS_CONFIG = {
     {2, NONE},
@@ -23,7 +23,7 @@ shared_ptr<Value> mse(shared_ptr<Value>& ypred, shared_ptr<Value>& y) {
 }
 
 double ground_truth(double x, double y) {
-    return 2.0*sin(x*3.14) - y + 0.5;
+    return 2.0*x*x*x + sin(-y*3.14) + 0.5;
 }
 
 int main() {
