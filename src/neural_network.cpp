@@ -7,7 +7,7 @@ void Module::zero_grad() {
     }
 }
 
-Neuron::Neuron(const int n_inputs) {
+Neuron::Neuron(const int n_inputs, const Activation activation) : activation(activation) {
     std::random_device rd;
     std::mt19937 gen(rd());
     std::uniform_real_distribution<> dis(-1.0, 1.0);
@@ -23,7 +23,10 @@ std::shared_ptr<Value> Neuron::operator()(const std::vector<std::shared_ptr<Valu
         out = out + (inputs[i] * this->weights[i]);
     }
     out = out + this->bias;
-    out = out->relu();
+
+    if (this->activation == RELU) out = out->relu();
+    else if (this->activation == TANH) out = out->tanh();
+
     this->output = out;
     return out;
 }
@@ -46,9 +49,9 @@ std::ostream& operator<<(std::ostream& os, const Neuron& n) {
     return os;
 }
 
-Layer::Layer(const int n_inputs, const int n_neurons) {
+Layer::Layer(const int n_inputs, const int n_neurons, const Activation activation) : activation(activation) {
     for (int i = 0; i < n_neurons; i++) {
-        this->neurons.push_back(Neuron(n_inputs));
+        this->neurons.push_back(Neuron(n_inputs, activation));
     }
 }
 
@@ -77,9 +80,13 @@ std::ostream& operator<<(std::ostream& os, const Layer& l) {
     return os;
 }
 
-MultiLayerPerceptron::MultiLayerPerceptron(const std::vector<int>& layer_sizes) {
-    for (int i = 0; i < layer_sizes.size() - 1; i++) {
-        this->layers.push_back(Layer(layer_sizes[i], layer_sizes[i + 1]));
+MultiLayerPerceptron::MultiLayerPerceptron(const std::vector<std::pair<int, Activation>>& layers_config) {
+    for (int i = 0; i < layers_config.size() - 1; i++) {
+        this->layers.push_back(Layer(
+            layers_config[i].first,
+            layers_config[i + 1].first,
+            layers_config[i + 1].second
+        ));
     }
 }
 
