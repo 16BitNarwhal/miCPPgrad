@@ -6,9 +6,11 @@
 #include "neural_network.h"
 using namespace std;
 
-const int EPOCHS = 10000;
+const int EPOCHS = 5000;
 const int NUM_SAVES = 50;
+const int NUM_TRAINING_SAMPLES = 50;
 const double LEARNING_RATE = 0.03;
+const double NOISE_FACTOR = 0.05;
 const vector<pair<int, Activation>> LAYERS_CONFIG = {
     {2, NONE},
     {32, RELU},
@@ -26,18 +28,32 @@ double ground_truth(double x, double y) {
     return 2.0*x*x*x + sin(-y*3.14) + 0.5;
 }
 
+double noise() {
+    return ((double)rand() / RAND_MAX) - 0.5;
+}
+
 int main() {
     // sample dataset
     vector<vector<double>> X;
-    for (double x=-1; x<=1; x+=0.3) {
-        for (double y=-1; y<=1; y+=0.3) {
-            X.push_back({x,y});
-        }
+    for (int i = 0; i < NUM_TRAINING_SAMPLES; i++) {
+        double x = 2.0 * ((double)rand() / RAND_MAX) - 1.0;
+        double y = 2.0 * ((double)rand() / RAND_MAX) - 1.0;
+        X.push_back({x, y});
     }
     vector<double> y;
     for (vector<double> x : X) {
-        y.push_back(ground_truth(x[0], x[1]));
+        y.push_back(ground_truth(x[0], x[1]) + NOISE_FACTOR*noise());
     }
+
+    // write to file
+    ofstream outFileTrain("out/neural_network_samples.csv");
+    outFileTrain << "X,Y,Z" << endl;
+    for (int i = 0; i < NUM_TRAINING_SAMPLES; i++) {
+        outFileTrain << X[i][0] << "," << X[i][1] << "," << y[i] << endl;
+    }
+    
+    outFileTrain.close();
+
     // convert to Value
     vector<vector<shared_ptr<Value>>> Xval;
     for (auto &x_ : X) {
@@ -50,7 +66,7 @@ int main() {
     // create model
     MultiLayerPerceptron model(LAYERS_CONFIG);
 
-    // file for writing
+    // files for writing
     ofstream outFile("out/neural_network_3d_graph.csv");
     outFile << "Epoch,Loss,X,Y,Z_pred,Z_true" << endl;
 
